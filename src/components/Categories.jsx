@@ -1,6 +1,8 @@
 import {useEffect, useState} from 'react';
 import * as XLSX from 'xlsx';
 import './Categories.css';
+import {Table, Upload, Button, Typography, message} from 'antd';
+import {uploadOutlined} from '@ant-design/icons';
 import supabase from './config/supabaseClient';
 
 const Categories = () => {
@@ -32,11 +34,7 @@ const Categories = () => {
     const [categories, setCategories] = useState([]);
     const [error, setError] = useState('');
 
-    const upload = (e) => {
-        const file = e.target.files[0];
-
-        if (!file) return;
-        
+    const upload = ({file}) => {
         const reader = new FileReader();
 
         reader.onload = async (evt) => {
@@ -131,29 +129,61 @@ const Categories = () => {
     );
     */
 
+    const columns = [
+        {
+            title: 'Category',
+            dataIndex: 'category',
+            key: 'category',
+            onCell: () => ({
+            style: { color: 'black' }}),
+        },
+        {
+            title: 'Total',
+            dataIndex: 'total',
+            key: 'total',
+            render: (value) => `$${value.toFixed(2)}`,
+            onCell: () => ({
+            style: { color: 'black' }}),
+        },
+    ];
+
+    const dataSource = categories.map((item, index) => ({
+        ...item,
+        key:index,
+    }));
+
     return (
         <div>
             <h1 className='text-2xl font-bold mb-4'>Item Price Calculator</h1>
             
-            <input
-                type='file'
+            <Upload
                 accept='.xlsx, .xls'
-                onChange={upload}
-                className='mb-4'
-            />
+                showUploadList={false}
+                customRequest={({file, onSuccess}) => {
+                    upload({file});
+                    setTimeout(() => onSuccess("ok"), 0);
+                }}
+                color
+            >
+                <Button icon={<uploadOutlined />} className="bg-blue-800 text-white hover:bg-blue-700">
+                    Upload File
+                </Button>
+            </Upload>
 
             {error && <p className='text-red-500 mb-4'>{error}</p>}
             
-            <table className='page-center'>
-                <tbody>
-                    {categories.map(({ category, total }, index) => (
-                    <tr key={index}>
-                        <td style={{border: '2px solid aliceblue'}}>{category}</td>
-                        <td style={{border: '2px solid aliceblue'}}>${total.toFixed(2)}</td>
-                    </tr>
-                    ))}
-                </tbody>
-            </table>
+            <Table
+                columns={columns}
+                dataSource={dataSource}
+                pagination={false}
+                className="rounded-lg overflow-hidden"
+                style={{
+                    maxWidth: '800px',
+                    margin: '0 auto',
+                    fontSize: '14px',
+                    fontVariant: 'bold',
+                }}
+            />
         </div>
     );
 };
