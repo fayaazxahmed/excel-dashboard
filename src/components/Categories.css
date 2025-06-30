@@ -17,6 +17,7 @@ table,td {
 h1 {
     text-align: center;
     color: aliceblue;
+    margin-top: 30px;
     text-shadow: 0 0 2px black, 0 0 3px cyan, 0 0 3px cyan;
 }
 

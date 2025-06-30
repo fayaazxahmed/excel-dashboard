@@ -1,8 +1,34 @@
-import {useState} from 'react';
+import {useEffect, useState} from 'react';
 import * as XLSX from 'xlsx';
 import './Categories.css';
+import supabase from './config/supabaseClient';
 
 const Categories = () => {
+    //console.log(supabase)
+    const [fetchError, setFetchError] = useState(null);
+    const[items, setItems] = useState(null);
+
+    useEffect(() => {
+        const fetchItems = async () => {
+            const { data, error } = await supabase
+                .from('Spreadsheet Items')
+                .select();
+
+            if (error){
+                setFetchError('Could not fetch data');
+                setItems(null);
+                console.log(error);
+            }
+            if (data){
+                setItems(data);
+                setFetchError(null);
+            }
+        };
+
+        fetchItems();
+        
+    }, [])
+
     const [categories, setCategories] = useState([]);
     const [error, setError] = useState('');
 
@@ -13,7 +39,7 @@ const Categories = () => {
         
         const reader = new FileReader();
 
-        reader.onload = (evt) => {
+        reader.onload = async (evt) => {
             const data = new Uint8Array(evt.target.result);
             const excelWorkbook = XLSX.read(data, {type:'array'});
             const excelWorksheet = excelWorkbook.Sheets[excelWorkbook.SheetNames[0]];
@@ -37,13 +63,33 @@ const Categories = () => {
                 return;
             }
 
+            await Promise.all(
+                normalize.map(async (row) => {
+                    const category = row.category;
+                    const item = row.item;
+                    let price = parseFloat(row.price);
+
+                    if (isNaN(price)) {
+                        price = 0;
+                    }
+
+                    // Update Postgres database
+                    const {error} = await supabase
+                        .from("Spreadsheet Items")
+                        .insert([{Item: item, Category: category, Price: price}])
+                    
+                    if (error) {
+                        console.error("Insertion error: ", error)
+                    }
+                })  
+            );
+
             const calculateTotals = normalize.reduce((acc, row) => {
                 const category = row.category;
                 const price = parseFloat(row.price);
 
                 if (!category) return acc;
 
-                // 
                 if (!acc[category]) acc[category] = 0;
                 if (!isNaN(price)) acc[category] += price;
                 
@@ -51,9 +97,11 @@ const Categories = () => {
             }, {})
 
             // Create an array of unique "category" values from the normalized Excel data
+            /*
             const uniqueCategories = [
                 ...new Set(normalize.map((row) => row.category).filter(Boolean)),
             ];
+            */
 
             const result = Object.entries(calculateTotals).map(([category, total]) => ({category, total}));
 
@@ -84,7 +132,7 @@ const Categories = () => {
     */
 
     return (
-        <div className='p-6 max-w-xl mx-auto'>
+        <div>
             <h1 className='text-2xl font-bold mb-4'>Item Price Calculator</h1>
             
             <input
