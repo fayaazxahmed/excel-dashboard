@@ -1,8 +1,8 @@
 import {useEffect, useState} from 'react';
 import * as XLSX from 'xlsx';
 import './Categories.css';
-import {Table, Upload, Button, Typography, message} from 'antd';
-import {uploadOutlined} from '@ant-design/icons';
+import {Table, Upload, Button} from 'antd';
+import {UploadOutlined} from '@ant-design/icons';
 import supabase from './config/supabaseClient';
 
 const Categories = () => {
@@ -153,9 +153,9 @@ const Categories = () => {
     }));
 
     return (
-        <div>
-            <h1 className='text-2xl font-bold mb-4'>Item Price Calculator</h1>
-            
+        <div className="flex justify-between items-center mb-4">
+            <h1 className='text-2xl font-bold gap-2'>Item Price Calculator</h1>
+
             <Upload
                 accept='.xlsx, .xls'
                 showUploadList={false}
@@ -165,7 +165,7 @@ const Categories = () => {
                 }}
                 color
             >
-                <Button icon={<uploadOutlined />} className="bg-blue-800 text-white hover:bg-blue-700">
+                <Button icon={<UploadOutlined />} className="bg-blue-800 text-white hover:bg-blue-700">
                     Upload File
                 </Button>
             </Upload>

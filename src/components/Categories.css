@@ -1,3 +1,7 @@
+body {
+    background-color: white;
+}
+
 div {
     text-align: center;
     color: aliceblue;
@@ -15,10 +19,11 @@ table,td {
 }
 
 h1 {
+    color: rgb(100, 98, 255);
     text-align: center;
-    color: aliceblue;
+    font-family: monospace;
+    font-weight: 700;
     margin-top: 30px;
-    text-shadow: 0 0 2px black, 0 0 3px cyan, 0 0 3px cyan;
 }
 
 input {
@@ -29,4 +34,10 @@ input {
 input:hover {
     transition-duration: 0.5s;
     text-shadow: 0 0 2px cyan, 0 0 3px cyan, 0 0 3px cyan;
+}
+
+.ant-table:hover {
+  background-color: rgb(217, 217, 255);
+  box-shadow: 0 0 10px rgb(100, 98, 255);
+  transition: background-color 0.3s, box-shadow 0.3s;
 }
